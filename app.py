@@ -9,6 +9,7 @@ import time
 import matplotlib.pyplot as plt 
 import matplotlib
 import seaborn as sns
+import plotly.express as px
 
 # EDA 
 import pandas as pd 
@@ -17,18 +18,20 @@ import numpy as np
 
 @st.cache
 def fetch_data():        
+    # data scrapping
+    
     url  = "https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield"
     req = requests.get(url)
     content = BeautifulSoup(req.text, 'lxml')
     table = content.find('table', {'class' :'t-chart'})
-    headers = []
+    headers = [] 
     
     for i in table.find_all('th'):
         title = i.text.strip()
-        headers.append(title)
+        headers.append(title)        
+    # converting string from bs4 to dataframe    
+    df = pd.DataFrame(columns= headers)
         
-    df = pd.DataFrame(columns = headers)
-    
     for row in table.find_all('tr')[1:]:
         data = row.find_all('td')
         row_data = [tr.text.strip() for tr in data]
@@ -41,43 +44,67 @@ def fetch_data():
     return new_data
 
 data = fetch_data()
-
-
-
-img = Image.open("trea_pic.png")
+st.title("Daily Treasury Real Yield Curve Rates")
+img = Image.open("pic_dollar.jpeg")
 st.image(img, width=700, output_format="PNG")
-st.subheader("Daily Treasury Yield Curve Rates")
-st.write(data)
+
+if st.checkbox("View_data"):
+    st.subheader("Current Yield Curve Rates")
+    st.write(data)  
 
 st.subheader(" Yield Curve Rates Visualization")
+
+if st.checkbox("Visulaization"):    
+    fig = px.line(data, x="Date", y=data.keys(),
+                        hover_data={'Date': "|%B %d"},
+                    template="simple_white")
+    fig.update_xaxes(
+        dtick="Date",
+        visible=True, fixedrange=False)
+    fig.update_layout(
+        showlegend=True,
+        plot_bgcolor="white",
+        font_family="Rockwell",
+        )          
+    st.plotly_chart(fig) 
+
 select = ['Notes','Bills','Bond']
-columns = st.multiselect(label='Choose Bills, Notes or Bonds  to display current rate', options=select, default=select)
-if  'Notes' in columns:
-    sns.set_theme(style="whitegrid")
-    fig1, ax1 = plt.subplots()    
-    fig1 = plt.figure(figsize=(20, 8))
-    ax1 = sns.lineplot(data=data, x='Date', y='1 mo')
-    st.pyplot(fig1)
+columns = st.multiselect(label='Choose Bills, Notes or Bonds  to display current rate in detail', options=select)
 
 if  'Bills' in columns:
-    sns.set_theme(style="whitegrid")
-    fig2, ax2 = plt.subplots()    
-    fig2 = plt.figure(figsize=(20, 8))
-    ax2= sns.lineplot(data=data, x='Date', y='2 yr')
-    st.pyplot(fig2)
+    fig1= px.bar(data, x="Date", y=["1 mo", "2 mo", "3 mo","6 mo", "1 yr"], facet_col="variable", color="value")
+    st.plotly_chart(fig1)
+
+if  'Notes' in columns:
+    fig2 = px.bar(data, x="Date", y=["2 yr", "3 yr", "5 yr","7 yr", "10 yr"], facet_col="variable", color="value")
+    st.plotly_chart(fig2)
     
 if 'Bond' in columns:
-    sns.set_theme(style="whitegrid")
-    fig3, ax3 = plt.subplots()    
-    fig3 = plt.figure(figsize=(20, 8))
-    ax3= sns.lineplot(data=data, x='Date', y='30 yr')
-    st.pyplot(fig3)
-
+    fig3 = px.bar(data, x="Date", y=["20 yr",'30 yr'], facet_col="variable", color="value")
+    st.plotly_chart(fig3)
+    
+    
+    
+    
+    
     
 
-     
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
