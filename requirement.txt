@@ -170,7 +170,7 @@ tqdm==4.59.0
 traitlets==5.0.5
 tzlocal==2.1
 uritemplate==3.0.1
-urllib3==1.26.2
+urllib3==1.26.4
 validators==0.18.2
 virtualenv==20.4.4
 visions==0.6.0
