@@ -119,7 +119,7 @@ pycodestyle==2.7.0
 pycparser==2.20
 pydeck==0.6.2
 pyee==8.1.0
-Pygments==2.7.2
+Pygments==2.7.4
 PyJWT==2.0.1
 pylint==2.6.0
 pylint-flask==0.6
